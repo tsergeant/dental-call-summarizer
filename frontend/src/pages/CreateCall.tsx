@@ -6,12 +6,16 @@ export default function CreateCall() {
 	const [callCreated, setCallCreated] = useState<any>(null)
 
 	const generateTranscript = async () => {
-		const res = await fetch("/api/calls/generate-transcript")
+		const res = await fetch("/api/calls/generate-transcript", {
+			method: "GET",
+			cache: "no-store",
+		})
+		console.log("Status: ", res.status)
 		const data = await res.json()
 		setTranscript(data.transcript)
 		setCallCreated(null)
 	}
-
+	
 	const createCall = async () => {
 		if (!transcript) return
 		setCreating(true)

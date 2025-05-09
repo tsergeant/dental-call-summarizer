@@ -1,7 +1,13 @@
 FROM node:20
 WORKDIR /app
-COPY . .
+COPY package*.json ./
+RUN npm install
 
-RUN npm install && npm run build
-RUN npm install -g serve
-CMD ["serve", "-s", "dist", "-l", "5173"]
+COPY . .
+EXPOSE 5173
+CMD ["npm", "run", "dev"]
+
+# Uncomment the following lines if you want to build the app for production
+#RUN npm install && npm run build
+#RUN npm install -g serve
+#CMD ["serve", "-s", "dist", "-l", "5173"]

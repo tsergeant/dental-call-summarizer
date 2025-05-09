@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom"
-import CreateCall from "./components/CreateCall"
-// import CommLog from "./pages/CommLog"  ← add later if needed
+import CreateCall from "./pages/CreateCall"
+import CommLog from "./pages/CommLog"
 
 function App() {
 	return (
@@ -13,7 +13,7 @@ function App() {
 
 				<Routes>
 					<Route path="/create-call" element={<CreateCall />} />
-					{/* <Route path="/commlog" element={<CommLog />} /> ← add when ready */}
+					<Route path="/commlog" element={<CommLog />} />
 				</Routes>
 			</div>
 		</BrowserRouter>

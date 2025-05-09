@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session, joinedload
 from app.database import SessionLocal
-from app.models import Call
+from app.models import Call, Customer
+from app.schemas.commlog import CommLogResponse, CommLogEntry, CustomerOption
+from app.schemas.call import CallCreate, CallOut
+from app.ai.openai_client import summarize_transcript, generate_dummy_transcript
 from datetime import datetime
-from app.constants import DUMMY_TRANSCRIPT
 import random
-import os
 
 router = APIRouter()
 
@@ -21,8 +22,34 @@ def read_hello(db: Session = Depends(get_db)):
     call = db.query(Call).first()
     return {"message": f"Hello from {call.phone_number}"}
 
+@router.get("/api/commlog", response_model=CommLogResponse)
+def get_commlog(db: Session = Depends(get_db)):
+    calls = (
+        db.query(Call)
+        .options(joinedload(Call.customer))
+        .order_by(Call.timestamp.desc())
+        .all()
+    )
+
+    call_entries = [
+        CommLogEntry(
+            call_id=call.call_id,
+            timestamp=call.timestamp,
+            phone_number=call.phone_number,
+            summary_text=call.summary_text,
+            customer_id=call.customer_id,
+            customer_name=call.customer.name if call.customer else None
+        )
+        for call in calls
+    ]
+
+    customers = db.query(Customer).order_by(Customer.name).all()
+    customer_options = [CustomerOption(customer_id=c.customer_id, name=c.name) for c in customers]
+
+    return CommLogResponse(calls=call_entries, customers=customer_options)
+
 @router.get("/api/calls/generate-transcript")
-def generate_dummy_transcript():
+def generate_transcript():
     participants = [
         "Susan (Receptionist)",
         "Alex (Receptionist)",
@@ -35,45 +62,8 @@ def generate_dummy_transcript():
     office_participant = random.sample(participants, random.randint(1, 2))
     office_list = "; ".join(office_participant)
 
-    system_prompt = """You are simulating a realistic phone call transcript for a dental office. The format should follow this exact structure:
-
-Metadata: <timestamp>; <Incoming or Outgoing>; <caller phone number>; <office participants>
-Office: <line of dialog>
-Caller: <line of dialog>
-... (repeated as needed)
-
-Rules:
-- Only include two roles: Office and Caller
-- Use natural, realistic dialogue based on typical dental office calls
-- Metadata must include actual participant names and roles (e.g., "Susan (Receptionist)")
-- If the call is transferred, list all office participants in the metadata
-- Keep it under 12 turns total
-- Match tone and structure to the example below
-
-Example:
-Metadata: 2025-05-08 09:14; Incoming; 5550000001; Susan (Receptionist)
-Office: Hello, this is ACME Dental. This is Susan at the front desk—how can I help you?
-Caller: Hi, I was in for a filling last week and I'm still having some pain...
-"""
-
-    user_prompt = f"Generate a transcript with metadata: {direction}; {phone_number}; {office_list}"
-
-    response = client.chat.completions.create(
-        model=os.getenv("OPENAI_MODEL", "gpt-3.5-turbo"),
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ],
-        temperature=0.7,
-    )
-
-    return {"transcript": response.choices[0].message.content.strip()}
-
-
-from fastapi import HTTPException
-from app.ai.openai_client import summarize_transcript
-from app.schemas.call import CallCreate, CallOut  # You'll create these below
-from app.models.call import Call
+    transcript = generate_dummy_transcript(direction, phone_number, office_list)
+    return {"transcript": transcript}
 
 @router.post("/api/calls/", response_model=CallOut)
 def create_call(call_data: CallCreate, db: Session = Depends(get_db)):
