@@ -15,7 +15,7 @@ export default function CreateCall() {
 		setTranscript(data.transcript)
 		setCallCreated(null)
 	}
-	
+
 	const createCall = async () => {
 		if (!transcript) return
 		setCreating(true)
@@ -53,7 +53,34 @@ export default function CreateCall() {
 	}
 
 	return (
+
 		<div className="p-4 space-y-4">
+		<h2 className="text-xl font-semibold text-gray-800 mb-2">Notes</h2>
+
+		<ul className="list-disc list-inside pl-4">
+			<li>
+				This page is used to populate the database with call data.
+			</li>
+			<li>
+				Click the <strong>Generate Transcript</strong> button to receive an AI-generated ficticious transcript.
+			</li>
+			<li>
+				Once a transcript is generated, you can click the <strong>Create Call</strong> button to create a call with a summary in the database.
+			</li>
+			<li>
+				If you want to add another call to the database, click the <strong>Generate Transcript</strong> button again to generate a new transcript and then click the <strong>Create Call</strong> button again.	
+			</li>
+			<li>
+				One interesting hidden feature on this page is that if the phone number corresponds to the phone number of a customer, it utilizes a trigger to connect the call with the corresponding entry in the customer table.
+			</li>
+			<li>
+				Use the menu at the top to see the CommLog page and the About page.
+			</li>
+			<li>
+				Not a lot of error handling on this page!
+			</li>
+		</ul>
+		
 			<h2 className="text-xl font-bold">Create Call</h2>
 
 			<div className="space-x-2">
@@ -79,10 +106,13 @@ export default function CreateCall() {
 			)}
 
 			{callCreated && (
-				<div className="mt-4 p-4 bg-green-100 rounded">
-					✅ Call created with ID #{callCreated.call_id}
+				<div className="mt-4 p-4 bg-green-100 border border-green-300 rounded text-green-800">
+					<p className="font-semibold mb-2">Call created successfully!</p>
+					<p><strong>Summary:</strong></p>
+					<p className="whitespace-pre-wrap">{callCreated.summary_text}</p>
 				</div>
 			)}
+
 		</div>
 	)
 }

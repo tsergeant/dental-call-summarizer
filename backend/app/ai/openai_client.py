@@ -24,8 +24,9 @@ def summarize_transcript(transcript: str) -> str:
         Caller: Thank you so much for your help, Karen. I appreciate it.
         Office: You're welcome, Lisa. Have a great day!
     A good summary would be:
-        Karen (Billing) called Lisa Smith to address a billing question. Resolved: insurance had been billed correctly.
-    Return a concise summary that includes:
+        Outgoing call to Lisa Smith about billing question. Result: Resolved (insurance billed correctly).
+    
+    Return a VERY concise summary that includes:
     - The purpose of the call
     - Any scheduling actions
     - Billing or treatment concerns
