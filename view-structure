@@ -1,0 +1,1 @@
+tree -a -I '__pycache__|.venv|.git|__init__.pyc|node_modules'
