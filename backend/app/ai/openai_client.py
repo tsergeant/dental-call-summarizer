@@ -31,6 +31,7 @@ def summarize_transcript(transcript: str) -> str:
     - Any scheduling actions
     - Billing or treatment concerns
     - Any commitments or outcomes agreed upon
+    - If the call was made by the office it is an outgoing call. If the call was made to the office it is an incoming call.
     Avoid repeating the transcript line-by-line. Focus on key outcomes in professional tone.
     All phone numbers should be one of these: 5510000001, 5550000002, 5550000003, 5550000004, 5550000005, 5550000006, 5550000007, 5550000008, 5550000009, 5550000010
     """

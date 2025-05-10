@@ -7,8 +7,10 @@ class CommLogEntry(BaseModel):
     timestamp: datetime
     phone_number: str
     summary_text: str
+    transcription_text: str
     customer_id: Optional[int] = None
     customer_name: Optional[str] = None
+    office_person: Optional[str] = None
 
     class Config:
         orm_mode = True

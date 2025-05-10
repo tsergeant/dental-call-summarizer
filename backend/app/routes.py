@@ -17,6 +17,16 @@ def get_db():
     finally:
         db.close()
 
+def extract_office_person(transcript: str) -> str:
+	lines = transcript.splitlines()
+	for line in lines:
+		if line.startswith("Metadata:"):
+			parts = line.split(";")
+			if len(parts) >= 4:
+				return parts[3].strip()
+	return ""
+
+
 @router.get("/hello")
 def read_hello(db: Session = Depends(get_db)):
     call = db.query(Call).first()
@@ -37,12 +47,13 @@ def get_commlog(db: Session = Depends(get_db)):
             timestamp=call.timestamp,
             phone_number=call.phone_number,
             summary_text=call.summary_text,
+            transcription_text=call.transcription_text,
             customer_id=call.customer_id,
-            customer_name=call.customer.name if call.customer else None
+            customer_name=call.customer.name if call.customer else None,
+            office_person=call.office_person,
         )
         for call in calls
     ]
-
     customers = db.query(Customer).order_by(Customer.name).all()
     customer_options = [CustomerOption(customer_id=c.customer_id, name=c.name) for c in customers]
 
@@ -78,7 +89,7 @@ def create_call(call_data: CallCreate, db: Session = Depends(get_db)):
         transcription_text=call_data.transcription_text,
         summary_text=summary,
         direction=call_data.direction,
-        office_person=call_data.office_person,
+        office_person=call_data.office_person or extract_office_person(call_data.transcription_text),
     )
     db.add(call)
     db.commit()

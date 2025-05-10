@@ -7,11 +7,20 @@ interface Call {
 	summary_text: string
 	customer_id?: number
 	customer_name?: string
+	office_person?: string
+	transcription_text: string
 }
 
 interface Customer {
 	customer_id: number
 	name: string
+}
+
+function formatPhoneNumber(phone: string): string {
+	if (phone.length === 10) {
+		return `${phone.slice(0, 3)}-${phone.slice(3, 6)}-${phone.slice(6)}`
+	}
+	return phone
 }
 
 export default function CommLog() {
@@ -48,6 +57,20 @@ export default function CommLog() {
 
 	return (
 		<div className="p-6 max-w-3xl mx-auto">
+			<h2 className="text-xl font-semibold text-gray-800 mb-2">Notes</h2>
+
+			<ul className="list-disc list-inside pl-4">
+				<li>
+					The drop down filters by customer.
+				</li>
+				<li>
+					There is not pagination. We are working with a small database in this toy app.
+				</li>
+				<li>
+					Click on an entry to call details.
+				</li>
+			</ul>
+
 			<h1 className="text-2xl font-bold mb-4">CommLog</h1>
 
 			<select
@@ -71,27 +94,43 @@ export default function CommLog() {
 						className="p-4 border rounded shadow hover:bg-gray-100 cursor-pointer"
 						onClick={() => setSelectedCall(call)}
 					>
-						<div className="text-sm text-gray-500">{new Date(call.timestamp).toLocaleString()}</div>
-						<div className="font-semibold">{call.phone_number}</div>
-						{call.customer_name && <div className="text-blue-600">{call.customer_name}</div>}
-						<div className="mt-1">{call.summary_text}</div>
+						<div className="grid gap-4 sm:grid-cols-[auto,1fr]">
+
+							<div className="whitespace-nowrap text-sm text-gray-600">
+								<div>{new Date(call.timestamp).toLocaleString()}</div>
+								<div>{formatPhoneNumber(call.phone_number)}</div>
+								{call.customer_name && <div className="text-blue-700">{call.customer_name}</div>}
+							</div>
+							<div className="text-gray-800">{call.summary_text}</div>
+						</div>
 					</li>
 				))}
 			</ul>
 
 			{/* Popup */}
 			{selectedCall && (
-				<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-					<div className="bg-white p-6 rounded shadow-lg max-w-xl w-full">
-						<h2 className="text-xl font-bold mb-2">Call Details</h2>
-						<p><strong>Timestamp:</strong> {new Date(selectedCall.timestamp).toLocaleString()}</p>
-						<p><strong>Phone:</strong> {selectedCall.phone_number}</p>
-						{selectedCall.customer_name && <p><strong>Customer:</strong> {selectedCall.customer_name}</p>}
-						<p className="mt-4"><strong>Summary:</strong><br />{selectedCall.summary_text}</p>
+				<div className="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto z-50">
+					<div className="mt-10 mx-auto bg-white p-6 rounded shadow-lg max-w-2xl w-full">						<h2 className="text-xl font-bold mb-4">Call Details</h2>
+						<div className="space-y-2 text-sm text-gray-800">
+							<p><strong>Timestamp:</strong> {new Date(selectedCall.timestamp).toLocaleString()}</p>
+							<p><strong>Phone:</strong> {formatPhoneNumber(selectedCall.phone_number)}</p>
+							{selectedCall.customer_name && (
+								<p><strong>Customer:</strong> {selectedCall.customer_name}</p>
+							)}
+							{selectedCall.office_person && (
+								<p><strong>Office Person:</strong> {selectedCall.office_person}</p>
+							)}
+							<p><strong>Summary:</strong><br />
+								<span className="whitespace-pre-wrap block mt-1">{selectedCall.summary_text}</span>
+							</p>
+							<p><strong>Transcript:</strong><br />
+								<span className="whitespace-pre-wrap block mt-1">{selectedCall.transcription_text}</span>
+							</p>
+						</div>
 
 						<button
 							onClick={() => setSelectedCall(null)}
-							className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+							className="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
 						>
 							Close
 						</button>
