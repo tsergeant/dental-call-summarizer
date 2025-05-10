@@ -1,0 +1,20 @@
+#!/bin/bash
+
+MODE=$1
+VALID_MODE="prod dev"
+
+if [[ ! "$VALID_MODE" =~ $MODE ]]; then
+	echo "Usage: ./setMode prod|dev"
+	exit 1
+fi
+
+echo "Setting mode to $MODE..."
+
+# Copy the backend .env file
+cp backend/.env.$MODE backend/.env || { echo "Missing backend/.env.$MODE"; exit 1; }
+
+# Copy frontend Dockerfile
+cp frontend/Dockerfile.$MODE frontend/Dockerfile || { echo "Missing frontend/Dockerfile.$MODE"; exit 1; }
+
+echo "Mode switched to $MODE."
+

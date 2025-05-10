@@ -26,12 +26,6 @@ def extract_office_person(transcript: str) -> str:
 				return parts[3].strip()
 	return ""
 
-
-@router.get("/hello")
-def read_hello(db: Session = Depends(get_db)):
-    call = db.query(Call).first()
-    return {"message": f"Hello from {call.phone_number}"}
-
 @router.get("/api/commlog", response_model=CommLogResponse)
 def get_commlog(db: Session = Depends(get_db)):
     calls = (

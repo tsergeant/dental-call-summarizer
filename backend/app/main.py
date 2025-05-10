@@ -16,15 +16,19 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+cors_origins = os.getenv("CORS_ORIGINS", "*").split(",")
+cors_allow_credentials = os.getenv("CORS_ALLOW_CREDENTIALS", "true").lower() == "true"
+cors_allow_methods = os.getenv("CORS_ALLOW_METHODS", "*").split(",")
+cors_allow_headers = os.getenv("CORS_ALLOW_HEADERS", "*").split(",")
+
 # CORS setup
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=cors_origins,
+    allow_credentials=cors_allow_credentials,
+    allow_methods=cors_allow_methods,
+    allow_headers=cors_allow_headers,
 )
-
 
 def run_triggers():
     with engine.connect() as conn:
